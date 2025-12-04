@@ -1,0 +1,7 @@
+{
+  "name": "AURAVERSE",
+  "description": "A futuristic 3D E-Commerce Metaspace where brands host immersive Pods and users shop with AI assistance.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

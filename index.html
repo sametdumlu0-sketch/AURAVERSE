@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AURAVERSE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alasql@4"></script>
+    <!-- Model Viewer for WebXR/AR -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+      
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #050505;
+        font-family: 'Rajdhani', sans-serif;
+        color: #e0e0e0;
+        overflow: hidden;
+      }
+      
+      h1, h2, h3, h4, h5, h6, .font-heading {
+        font-family: 'Orbitron', sans-serif;
+      }
+
+      /* Custom scrollbar for cyberpunk feel */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #06b6d4; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #22d3ee; 
+      }
+
+      /* --- CUSTOM ANIMATIONS FOR ENTRY PORTALS --- */
+      
+      /* Floating Effect */
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+      .animate-float-delayed {
+        animation: float 6s ease-in-out infinite;
+        animation-delay: 3s; /* Desync the two buttons */
+      }
+
+      /* Green Neon Pulse (Breathing) */
+      @keyframes pulse-green {
+        0%, 100% { 
+          box-shadow: 0 0 10px rgba(34, 197, 94, 0.2), inset 0 0 5px rgba(34, 197, 94, 0.1); 
+          border-color: rgba(34, 197, 94, 0.3); 
+        }
+        50% { 
+          box-shadow: 0 0 30px rgba(34, 197, 94, 0.6), inset 0 0 15px rgba(34, 197, 94, 0.3); 
+          border-color: rgba(34, 197, 94, 0.8); 
+        }
+      }
+      .glow-pulse-green {
+        animation: pulse-green 3s infinite ease-in-out;
+      }
+
+      /* Cyan Neon Pulse (Breathing) */
+      @keyframes pulse-cyan {
+        0%, 100% { 
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.2), inset 0 0 5px rgba(6, 182, 212, 0.1); 
+          border-color: rgba(6, 182, 198, 0.3); 
+        }
+        50% { 
+          box-shadow: 0 0 30px rgba(6, 182, 212, 0.6), inset 0 0 15px rgba(6, 182, 212, 0.3); 
+          border-color: rgba(6, 182, 212, 0.8); 
+        }
+      }
+      .glow-pulse-cyan {
+        animation: pulse-cyan 3s infinite ease-in-out;
+      }
+
+      /* Sequential Blink for Text */
+      @keyframes blink-sequence {
+        0%, 100% { opacity: 0.3; color: currentColor; text-shadow: none; }
+        50% { opacity: 1; color: currentColor; text-shadow: 0 0 8px currentColor; }
+      }
+      .animate-letter-blink {
+        animation: blink-sequence 2s infinite;
+      }
+
+      /* Dynamic Border Flicker for Search Bar */
+      @keyframes border-flicker {
+        0%, 100% { border-color: rgba(6, 182, 212, 0.3); box-shadow: 0 0 5px rgba(6, 182, 212, 0.1); }
+        50% { border-color: rgba(6, 182, 212, 0.8); box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+      }
+      .animate-border-flicker {
+        animation: border-flicker 3s infinite ease-in-out;
+      }
+
+      /* RGB Cycle Animation */
+      @keyframes rgb-cycle {
+        0% { border-color: #ff0000; color: #ff0000; box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
+        15% { border-color: #ff00ff; color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.3); }
+        30% { border-color: #0000ff; color: #0000ff; box-shadow: 0 0 10px rgba(0, 0, 255, 0.3); }
+        45% { border-color: #00ffff; color: #00ffff; box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+        60% { border-color: #00ff00; color: #00ff00; box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); }
+        75% { border-color: #ffff00; color: #ffff00; box-shadow: 0 0 10px rgba(255, 255, 0, 0.3); }
+        90% { border-color: #ff8000; color: #ff8000; box-shadow: 0 0 10px rgba(255, 128, 0, 0.3); }
+        100% { border-color: #ff0000; color: #ff0000; box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); }
+      }
+      .animate-rgb-cycle {
+        animation: rgb-cycle 4s linear infinite;
+      }
+      
+      /* AR Modal styles */
+      model-viewer {
+        width: 100%;
+        height: 300px;
+        background-color: #111;
+        border-radius: 8px;
+      }
+
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@react-three/fiber": "https://aistudiocdn.com/@react-three/fiber@^9.4.2",
+    "@react-three/drei": "https://aistudiocdn.com/@react-three/drei@^10.7.7",
+    "three": "https://aistudiocdn.com/three@^0.181.2",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
